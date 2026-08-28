@@ -1,0 +1,26 @@
+# Build artifacts
+build/
+*.o
+*.elf
+*.a
+*.img
+*.d
+report.txt
+
+# libvmm downloaded/generated assets (fetched at build time)
+*-linux
+*-rootfs.cpio.gz
+*.tar.gz
+linux_download_dir/
+initrd_download_dir/
+vm.dts
+vm.dtb
+vm_dsdt.aml
+
+# Third-party source trees (should be fetched separately, not committed)
+libvmm-src/
+
+# OS/editor noise
+.DS_Store
+*.swp
+*.log

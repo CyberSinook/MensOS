@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<system>
+    <protection_domain name="safety_runtime" priority="100">
+        <program_image path="safety_runtime.elf" />
+    </protection_domain>
+    <protection_domain name="heartbeat_monitor" priority="99">
+        <program_image path="heartbeat_monitor.elf" />
+    </protection_domain>
+    <channel>
+        <end pd="safety_runtime" id="0" />
+        <end pd="heartbeat_monitor" id="0" />
+    </channel>
+</system>
