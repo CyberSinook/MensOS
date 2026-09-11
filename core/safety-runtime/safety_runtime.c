@@ -12,5 +12,15 @@ void init(void)
 
 void notified(microkit_channel ch)
 {
-    microkit_dbg_puts("SAFETY_RUNTIME|ERROR: unexpected notification\n");
+    mensos_cmd_type_t cmd = mensos_msg_get_cmd_type();
+    switch (cmd) {
+    case MENSOS_CMD_HEARTBEAT:
+        microkit_dbg_puts("SAFETY_RUNTIME|HEARTBEAT: received on channel\n");
+        break;
+    case MENSOS_CMD_STATUS:
+        microkit_dbg_puts("SAFETY_RUNTIME|STATUS: received status message\n");
+        break;
+    default:
+        microkit_dbg_puts("SAFETY_RUNTIME|INFO: received unrecognized message type\n");
+    }
 }

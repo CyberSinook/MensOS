@@ -38,6 +38,7 @@ export RANLIB
 export MICROKIT_TOOL
 export SDDF
 export LIBVMM
+export ARCH := aarch64
 
 CFLAGS_VMM := -ffreestanding -g3 -O3 -Wall -Wno-unused-function \
               -DBOARD_$(MICROKIT_BOARD) \
@@ -46,7 +47,7 @@ CFLAGS_VMM := -ffreestanding -g3 -O3 -Wall -Wno-unused-function \
               -I../../core/ipc-framework/include \
               -MD -MP -target aarch64-none-elf -mstrict-align
 LDFLAGS_VMM := -L$(BOARD_DIR)/lib
-LIBS_VMM := --start-group -lmicrokit -Tmicrokit.ld libvmm.a libsddf_util_debug.a --end-group
+LIBS_VMM := --start-group -lmicrokit -Tmicrokit.ld $(BUILD_DIR)/libvmm.a $(BUILD_DIR)/libsddf_util_debug.a --end-group
 
 LINUX := 8b1d3a8587c60428c79d3e1981e7b6a7c653e1f8-linux
 INITRD := e800d52939b73281670df8598cb9c616dfd44f10-rootfs.cpio.gz
@@ -107,8 +108,10 @@ $(BUILD_DIR)/vmm_robotics.elf: $(BUILD_DIR)/vmm_robotics.o $(BUILD_DIR)/images.o
 	$(LD) $(LDFLAGS_VMM) $(BUILD_DIR)/vmm_robotics.o $(BUILD_DIR)/images.o $(LIBS_VMM) -o $@
 
 $(BUILD_DIR)/libvmm.a $(BUILD_DIR)/libsddf_util_debug.a:
-	$(MAKE) -C $(BUILD_DIR) -f $(LIBVMM)/vmm.mk MICROKIT_SDK=$(MICROKIT_SDK) libvmm.a
-	$(MAKE) -C $(BUILD_DIR) -f $(SDDF)/util/util.mk MICROKIT_SDK=$(MICROKIT_SDK) libsddf_util_debug.a
+	mkdir -p $(BUILD_DIR)/util $(BUILD_DIR)/util/custom_libc
+	mkdir -p $(BUILD_DIR)/libvmm/arch/aarch64/vgic $(BUILD_DIR)/libvmm/util $(BUILD_DIR)/libvmm/virtio $(BUILD_DIR)/libvmm/uefi
+	$(MAKE) -C $(BUILD_DIR) -f $(LIBVMM)/vmm.mk MICROKIT_SDK=$(MICROKIT_SDK) MICROKIT_CONFIG=$(MICROKIT_CONFIG) VPATH=$(LIBVMM) ARCH=aarch64 SDDF=$(SDDF) LIBVMM=$(LIBVMM) CFLAGS="-I$(BOARD_DIR)/include -I$(SDDF)/include -I$(SDDF)/include/microkit -I$(SDDF)/include/sddf/util/custom_libc -target aarch64-none-elf -mstrict-align" libvmm.a
+	$(MAKE) -C $(BUILD_DIR) -f $(SDDF)/util/util.mk MICROKIT_SDK=$(MICROKIT_SDK) VPATH=$(SDDF) ARCH=aarch64 SDDF=$(SDDF) SDDF_CUSTOM_LIBC=1 CFLAGS="-I$(BOARD_DIR)/include -I$(SDDF)/include -I$(SDDF)/include/microkit -I$(SDDF)/include/sddf/util/custom_libc -target aarch64-none-elf -mstrict-align" libsddf_util_debug.a
 
 $(IMAGE_FILE) $(REPORT_FILE): $(BUILD_DIR)/safety_runtime.elf $(BUILD_DIR)/robotics_bridge.elf $(BUILD_DIR)/vmm_robotics.elf $(SYSTEM_FILE)
 	$(MICROKIT_TOOL) $(SYSTEM_FILE) --search-path $(BUILD_DIR) --board $(MICROKIT_BOARD) --config $(MICROKIT_CONFIG) -o $(IMAGE_FILE) -r $(REPORT_FILE)

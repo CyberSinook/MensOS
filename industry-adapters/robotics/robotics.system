@@ -26,8 +26,8 @@
 
     <!-- channel: VMM <-> robotics_bridge (protected call) -->
     <channel>
-        <end pd="VMM" id="2" />
-        <end pd="robotics_bridge" id="0" pp="true" />
+        <end pd="VMM" id="2" pp="true" />
+        <end pd="robotics_bridge" id="0" />
     </channel>
 
     <!-- channel: robotics_bridge <-> safety_runtime (notification) -->
